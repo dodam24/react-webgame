@@ -2,14 +2,13 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-  mode: 'development',
+  mode: 'development', // 배포 모드: production
   devtool: 'inline-source-map', // hidden-source-map
   resolve: {
     extensions: ['.jsx', '.js'],
   },
-
   entry: {
-    app: './client',
+    app: "./client",
   },
   module: {
     rules: [{
@@ -22,15 +21,18 @@ module.exports = {
               browsers: ['> 1% in KR'], // browserslist
             },
             debug: true,
-          }],
-          '@babel/preset-react',
+          }], 
+          '@babel/preset-react'
         ],
         plugins: [],
       },
     }],
   },
+  plugins: [
+    new webpack.LoaderOptionsPlugin({ debug: true }),
+  ],
   output: {
-    filename: 'app.js',
-    path: path.join(__dirname, 'dist'),
+    filename: "app.js",
+    path: path.join(__dirname, "dist"),
   },
 };

@@ -25,7 +25,7 @@ module.exports = {
         ],
         plugins: ['react-refresh/babel'],
       },
-      exclude: path.join(__dirname, 'node_modules'),
+      // exclude: path.join(__dirname, 'node_modules'),
     }],
   },
   plugins: [
