@@ -1,5 +1,5 @@
 const path = require('path');
-const RefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 module.exports = {
   name: 'wordrelay-setting',
@@ -10,7 +10,7 @@ module.exports = {
   },
 
   entry: {
-    app: ['./client'],
+    app: './client',
   },
 
   module: {
@@ -31,17 +31,18 @@ module.exports = {
           '@babel/plugin-proposal-class-properties',
           'react-refresh/babel',
         ],
-      }
+      },
+      // exclude: path.join(__dirname, 'node_modules'),
     }],
   },
   plugins: [
-    new RefreshWebpackPlugin()
+    new ReactRefreshWebpackPlugin()
   ],
 
   output: {
     path: path.join(__dirname, 'dist'), // C:\users\dam\webstorm\react-webgame\lecture\dist
     filename: 'app.js',
-    publicPath: '/dist/',
+    publicPath: '/dist',
   },
   devServer: {
     devMiddleware: { publicPath: '/dist' },

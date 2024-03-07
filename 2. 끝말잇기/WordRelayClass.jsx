@@ -1,4 +1,4 @@
-const React = require('react');
+const React = require("react");
 const { Component } = React;
 
 class WordRelay extends Component {
@@ -18,7 +18,7 @@ class WordRelay extends Component {
         value: '',
       });
       this.input.focus();
-      
+
     } else {
       this.setState({
         result: '땡!',
@@ -27,12 +27,12 @@ class WordRelay extends Component {
       this.input.focus();
     }
   };
-
+ 
   onChangeInput = (e) => {
     this.setState({ value: e.target.value });
   };
 
-  input; // this.input을 생성
+  input; // this.input 생성
 
   onRefInput = (c) => {
     this.input = c;
@@ -43,8 +43,15 @@ class WordRelay extends Component {
       <>
         <div>{this.state.word}</div>
         <form onSubmit={this.onSubmitForm}>
-          <input ref={this.onRefInput} value={this.state.value} onChange={this.onChangeInput} />
-          <button>클릭!!!</button>
+          <label id="label" htmlFor="wordInput">글자 입력</label>
+          <input
+            id="wordInput"
+            className="wordInput"
+            ref={this.onRefInput}
+            value={this.state.value}
+            onChange={this.onChangeInput}
+          />
+          <button>입력</button>
         </form>
         <div>{this.state.result}</div>
       </>
