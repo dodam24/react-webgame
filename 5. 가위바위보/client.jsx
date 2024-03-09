@@ -1,6 +1,8 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 
-import RSP from './RSP.jsx';
+// import RSP from './RSP.jsx';
+import RSPClass from './RSPClass.jsx';
 
-ReactDOM.render(<RSP />, document.querySelector('#root'));
+// ReactDOM.createRoot(document.querySelector('#root')).render(<RSP />);
+ReactDOM.createRoot(document.querySelector('#root')).render(<RSPClass />);

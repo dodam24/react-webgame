@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 
-// 클래스의 경우 -> constructor -> render -> ref -> componentDidMount
-// (setState/props 바뀔때) -> shouldComponentUpdate(true) -> render -> componentDidUpdate
-// 부모가 나를 없앴을 때 -> componentWillUnmount -> 소멸
+// 라이프 사이클(Life Cycle) 과정:
+// 클래스의 경우 constructor -> render -> ref -> componentDidMount 
+// (setState/props가 변경될 때) -> shouldComponentUpdate(true) -> render -> componentDidUpdate
+// 부모 컴포넌트가 자식 컴포넌트를 제거할 때 -> componentWillUnmount -> 소멸
 
 const rspCoords = {
   바위: '0',
@@ -22,25 +23,28 @@ const computerChoice = (imgCoord) => {
   })[0];
 };
 
-class RSP extends Component {
+class RSPClass extends Component {
   state = {
     result: '',
-    imgCoord: rspCoords.바위,
     score: 0,
-  };
+    imgCoord: rspCoords.바위,
+  }; 
 
   interval;
 
-  componentDidMount() { // 컴포넌트가 첫 렌더링된 후, 여기에 비동기 요청을 많이 해요
+  // 라이프 사이클(Life Cycle)
+  componentDidMount() { // 컴포넌트가 처음 렌더링된 직후, 주로 여기에 비동기 요청(ex. setInterval, setTimeout)
     this.interval = setInterval(this.changeHand, 100);
   }
 
-  componentWillUnmount() { // 컴포넌트가 제거되기 직전, 비동기 요청 정리를 많이 해요
+  // componentDidUpdate() {} // 리렌더링 후
+
+  componentWillUnmount() { // 컴포넌트가 제거되기 직전, 주로 여기에 비동기 요청 취소(ex. clearInterval, clearTimeout)
     clearInterval(this.interval);
   }
 
   changeHand = () => {
-    const {imgCoord} = this.state;
+    const { imgCoord } = this.state;
     if (imgCoord === rspCoords.바위) {
       this.setState({
         imgCoord: rspCoords.가위,
@@ -57,7 +61,7 @@ class RSP extends Component {
   };
 
   onClickBtn = (choice) => () => {
-    const {imgCoord} = this.state;
+    const { imgCoord } = this.state;
     clearInterval(this.interval);
     const myScore = scores[choice];
     const cpuScore = scores[computerChoice(imgCoord)];
@@ -83,7 +87,7 @@ class RSP extends Component {
     }
     setTimeout(() => {
       this.interval = setInterval(this.changeHand, 100);
-    }, 1000);
+    }, 1000)
   };
 
   render() {
@@ -101,6 +105,6 @@ class RSP extends Component {
       </>
     );
   }
-}
+};
 
-export default RSP;
+export default RSPClass;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import Try from "./Try";
 
 function getNumbers() { // 숫자 네 개를 겹치지 않고 랜덤하게 뽑는 함수
@@ -14,21 +14,23 @@ function getNumbers() { // 숫자 네 개를 겹치지 않고 랜덤하게 뽑�
 const NumberBaseball = () => {
   const [result, setResult] = useState("");
   const [value, setValue] = useState("");
-  const [answer, setAnswer] = useState(getNumbers); // lazy init. useState에 getNumbers 함수를 넣어 첫 번째 호출의 return 값만 저장해서 초기값으로 사용
+  const [answer, setAnswer] = useState(getNumbers()); // lazy init. useState에 getNumbers 함수를 넣어 첫 번째 호출의 return 값만 저장해서 초기값으로 사용
   const [tries, setTries] = useState([]);
+  const inputEl = useRef(null);
 
-  const onSubmitForm = (e) => { // 화살표 함수를 선언하면 this에 바인딩할 객체가 정적으로 결정됨. 즉, 화살표 함수 내부에서 bind(this)를 자동으로 실행
+  const onSubmitForm = useCallback((e) => { // 화살표 함수를 선언하면 this에 바인딩할 객체가 정적으로 결정됨. 즉, 화살표 함수 내부에서 bind(this)를 자동으로 실행
     e.preventDefault();
 
     if (value === answer.join("")) { // 정답을 맞춘 경우
-      setResult("홈런!");
       setTries((prevTries) => {
         return [...prevTries, { try: value, result: "홈런!" }];
       });
+      setResult("홈런!");
       alert("게임을 다시 시작합니다!"); // 초기화
       setValue("");
       setAnswer(getNumbers());
       setTries([]);
+      inputEl.current.focus();
 
     } else { // 답이 틀렸을 경우
       const answerArray = value.split("").map((v) => parseInt(v));
@@ -40,6 +42,7 @@ const NumberBaseball = () => {
         setValue("");
         setAnswer(getNumbers());
         setTries([]);
+        inputEl.current.focus();
 
       } else { // 10번 이하로 틀렸을 때
         for (let i = 0; i < 4; i += 1) {
@@ -54,24 +57,25 @@ const NumberBaseball = () => {
           { try: value, result: `${strike} 스트라이크, ${ball} 볼입니다.` },
         ]);
         setValue("");
+        inputEl.current.focus();
       }
     }
-  };
+  }, [value, answer]);
 
-  const onChangeInput = (e) => {
+  const onChangeInput = useCallback((e) => {
     setValue(e.target.value);
-  };
+  }, []);
 
   return (
     <>
       <h1>{result}</h1>
       <form onSubmit={onSubmitForm}>
-        <input maxLength={4} value={value} onChange={onChangeInput} />
+        <input ref={inputEl} maxLength={4} value={value} onChange={onChangeInput} />
       </form>
       <div>시도: {tries.length}</div>
       <ul>
         {tries.map((v, i) => {
-          return <Try key={`${i + 1}차 시도 :`} tryInfo={v} />;
+          return <Try key={`${i + 1}차 시도 : ${v.try}`} tryInfo={v} />;
         })}
       </ul>
     </>
