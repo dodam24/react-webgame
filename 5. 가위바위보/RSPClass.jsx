@@ -45,6 +45,7 @@ class RSPClass extends Component {
 
   changeHand = () => {
     const { imgCoord } = this.state;
+    
     if (imgCoord === rspCoords.바위) {
       this.setState({
         imgCoord: rspCoords.가위,
@@ -60,12 +61,13 @@ class RSPClass extends Component {
     }
   };
 
-  onClickBtn = (choice) => () => {
+  onClickBtn = (choice) => () => { // 고차 함수(High Order Function): 함수를 인자로 전달받거나 함수를 결과로 반환하는 함수
     const { imgCoord } = this.state;
     clearInterval(this.interval);
     const myScore = scores[choice];
     const cpuScore = scores[computerChoice(imgCoord)];
     const diff = myScore - cpuScore;
+
     if (diff === 0) {
       this.setState({
         result: '비겼습니다!',
