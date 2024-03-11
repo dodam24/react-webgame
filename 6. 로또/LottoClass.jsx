@@ -13,7 +13,7 @@ function getWinNumbers() {
   return [...winNumbers, bonusNumber];
 }
 
-class Lotto extends Component {
+class LottoClass extends Component {
   state = {
     winNumbers: getWinNumbers(), // 당첨 숫자들
     winBalls: [],
@@ -25,8 +25,8 @@ class Lotto extends Component {
 
   runTimeouts = () => {
     console.log('runTimeouts');
-    const { winNumbers } = this.state;
-    for (let i = 0; i < winNumbers.length - 1; i++) {
+    const { winNumbers } = this.state; 
+    for (let i = 0; i < winNumbers.length - 1; i++) { // 보너스 공 빼기
       this.timeouts[i] = setTimeout(() => {
         this.setState((prevState) => {
           return {
@@ -34,43 +34,43 @@ class Lotto extends Component {
           };
         });
       }, (i + 1) * 1000);
-    }
-    this.timeouts[6] = setTimeout(() => {
+    };
+    this.timeouts[6] = setTimeout(() => { // 보너스 공
       this.setState({
         bonus: winNumbers[6],
         redo: true,
       });
-    }, 7000);
+    }, 7000)
   };
 
   componentDidMount() {
     console.log('didMount');
     this.runTimeouts();
     console.log('로또 숫자를 생성합니다.');
-  }
+  };
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) { // redo를 클릭했을 때만 실행되도록 조건문 설정
     console.log('didUpdate');
-    if (this.state.winBalls.length === 0) {
+    if (this.timeouts.length === 0) {
       this.runTimeouts();
     }
     if (prevState.winNumbers !== this.state.winNumbers) {
       console.log('로또 숫자를 생성합니다.');
     }
-  }
+  };
 
   componentWillUnmount() {
     this.timeouts.forEach((v) => {
       clearTimeout(v);
     });
-  }
+  };
 
-  onClickRedo = () => {
+  onClickRedo = () => { // 초기화
     console.log('onClickRedo');
     this.setState({
-      winNumbers: getWinNumbers(), // 당첨 숫자들
+      winNumbers: getWinNumbers(),
       winBalls: [],
-      bonus: null, // 보너스 공
+      bonus: null,
       redo: false,
     });
     this.timeouts = [];
@@ -84,7 +84,7 @@ class Lotto extends Component {
         <div id="결과창">
           {winBalls.map((v) => <Ball key={v} number={v} />)}
         </div>
-        <div>보너스!</div>
+        <div>보너스</div>
         {bonus && <Ball number={bonus} />}
         {redo && <button onClick={this.onClickRedo}>한 번 더!</button>}
       </>
@@ -92,4 +92,4 @@ class Lotto extends Component {
   }
 }
 
-export default Lotto;
+export default LottoClass;

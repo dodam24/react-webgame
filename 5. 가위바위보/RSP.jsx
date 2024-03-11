@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import useInterval from './useInterval';
 
 const rspCoords = {
   바위: '0',
@@ -40,16 +41,10 @@ const RSP = () => {
   const [result, setResult] = useState('');
   const [imgCoord, setImgCoord] = useState(rspCoords.바위);
   const [score, setScore] = useState(0);
-  const interval = useRef();
+  const [isRunning, setIsRunning] = useState(true);
 
   // 클래스 컴포넌트의 Life Cycle을 대체 (리액트 컴포넌트가 렌더링될 때마다 특정 작업을 실행할 수 있도록 하는 Hook)
   // 컴포넌트가 마운트 됐을 때(처음 나타났을 때), 언마운트 됐을 때(사라질 때), 그리고 업데이트 될 때(특정 props가 바뀔 때) 특정 작업을 처리
-  useEffect(() => { // componentDidMount, componentDidUpdate 역할
-    interval.current = setInterval(changeHand, 100);
-    return () => { // componentWillUnmount 역할
-      clearInterval(interval.current);
-    }
-  }, [imgCoord]);
 
   const changeHand = () => {
     if (imgCoord === rspCoords.바위) {
@@ -61,10 +56,11 @@ const RSP = () => {
     }
   };
 
+  useInterval(changeHand, isRunning ? 100 : null); // 커스텀 훅
+
   const onClickBtn = (choice) => () => {
-    if (interval.current) {
-      clearInterval(interval.current);
-      interval.current = null;
+    if (isRunning) { // 멈췄을 때 또 클릭하는 것을 방지
+      setIsRunning(false);
       const myScore = scores[choice];
       const cpuScore = scores[computerChoice(imgCoord)];
       const diff = myScore - cpuScore;
@@ -78,8 +74,8 @@ const RSP = () => {
         setResult('졌습니다!'),
         setScore((prevScore) => prevScore - 1);
       }
-      setTimeout(() => {
-        interval.current = setInterval(changeHand, 100);
+      setTimeout(() => { // 멈춰 있던 묵찌빠를 1초 후에 재실행
+        setIsRunning(true);
       }, 1000)
     }
   };
