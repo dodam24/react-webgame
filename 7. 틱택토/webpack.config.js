@@ -23,7 +23,7 @@ module.exports = {
           }],
           '@babel/preset-react',
         ],
-        plugins: ["react-refresh/babel"]
+        plugins: ["@babel/plugin-proposal-class-properties", "react-refresh/babel"]
       },
       exclude: path.join(__dirname, 'node_modules'),
     }],

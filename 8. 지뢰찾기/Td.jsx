@@ -1,5 +1,5 @@
-import React, { useContext, useCallback, useMemo, memo } from 'react';
-import { CLICK_MINE, CODE, FLAG_CELL, NORMALIZE_CELL, OPEN_CELL, QUESTION_CELL, TableContext } from './MineSearch';
+import React, { useContext, useCallback, useMemo, memo } from "react";
+import { CODE, CLICK_MINE, FLAG_CELL, NORMALIZE_CELL, OPEN_CELL, QUESTION_CELL, TableContext } from "./MineSearch";
 
 const getTdStyle = (code) => {
   switch (code) {
@@ -31,7 +31,6 @@ const getTdStyle = (code) => {
 };
 
 const getTdText = (code) => {
-  console.log('getTdtext');
   switch (code) {
     case CODE.NORMAL:
       return '';
@@ -46,28 +45,29 @@ const getTdText = (code) => {
     case CODE.QUESTION:
       return '?';
     default:
-      return code || '';
+      return 'code' || '';
   }
 };
 
-const Td = memo(({ rowIndex, cellIndex }) => {
-  const { tableData, dispatch, halted } = useContext(TableContext);
+const Td = memo(({ rowIndex, cellIndex }) => { // 몇 번째 줄, 몇 번째 칸인지는 부모 props로부터 받음
+  const { tableData, dispatch, halted } = useContext(TableContext); // tableData는 useContext로부터 받음
 
   const onClickTd = useCallback(() => {
     if (halted) {
       return;
     }
     switch (tableData[rowIndex][cellIndex]) {
+      // 다음 5가지 경우는 클릭이 되지 않도록 설정
       case CODE.OPENED:
       case CODE.FLAG_MINE:
       case CODE.FLAG:
       case CODE.QUESTION_MINE:
       case CODE.QUESTION:
-        return;
-      case CODE.NORMAL:
+        return ;
+      case CODE.NORMAL: // 보통 칸
         dispatch({ type: OPEN_CELL, row: rowIndex, cell: cellIndex });
         return;
-      case CODE.MINE:
+      case CODE.MINE: // 지뢰 칸
         dispatch({ type: CLICK_MINE, row: rowIndex, cell: cellIndex });
         return;
       default:
@@ -75,6 +75,7 @@ const Td = memo(({ rowIndex, cellIndex }) => {
     }
   }, [tableData[rowIndex][cellIndex], halted]);
 
+  // 오른쪽 버튼 클릭 시
   const onRightClickTd = useCallback((e) => {
     e.preventDefault();
     if (halted) {
@@ -94,24 +95,23 @@ const Td = memo(({ rowIndex, cellIndex }) => {
         dispatch({ type: NORMALIZE_CELL, row: rowIndex, cell: cellIndex });
         return;
       default:
-        return;
+        return; 
     }
   }, [tableData[rowIndex][cellIndex], halted]);
 
-  console.log('td rendered');
-
-  return <RealTd onClickTd={onClickTd} onRightClickTd={onRightClickTd} data={tableData[rowIndex][cellIndex]} />;
+    return <RealTd onClickTd={onClickTd} onRightClickTd={onRightClickTd} data={tableData[rowIndex][cellIndex]} />;
 });
 
 const RealTd = memo(({ onClickTd, onRightClickTd, data}) => {
-  console.log('real td rendered');
   return (
-    <td
-      style={getTdStyle(data)}
+    <td 
+      style={getTdStyle(tableData[rowIndex][cellIndex])}
       onClick={onClickTd}
       onContextMenu={onRightClickTd}
-    >{getTdText(data)}</td>
-  )
+    >
+      {getTdText(tableData[rowIndex][cellIndex])}
+    </td>
+  );
 });
 
 export default Td;
