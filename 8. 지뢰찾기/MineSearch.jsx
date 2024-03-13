@@ -51,20 +51,18 @@ const plantMine = (row, cell, mine) => {
       rowData.push(CODE.NORMAL);
     }
   }
-
   for (let k = 0; k < shuffle.length; k++) {
     const ver = Math.floor(shuffle[k] / cell);
     const hor = shuffle[k] % cell;
     data[ver][hor] = CODE.MINE;
   }
-  
-  console.log(data);
   return data;
 };
 
+// 액션 생성
 export const START_GAME = 'START_GAME';
 export const OPEN_CELL = 'OPEN_CELL';
-export const CLICK_MINE = 'CLICK_CELL';
+export const CLICK_MINE = 'CLICK_MINE';
 export const FLAG_CELL = 'FLAG_CELL';
 export const QUESTION_CELL = 'QUESTION_CELL';
 export const NORMALIZE_CELL = 'NORMALIZE_CELL';
@@ -93,12 +91,12 @@ const reducer = (state, action) => {
       });
       const checked = [];
       let openedCount = 0;
-      console.log(tableData.length, tableData[0].length);
-      const checkAround = (row, cell) => { // 내 주변을 검사하는 함수
-        if (row < 0 || row > tableData.length || cell < 0 || cell >= tableData[0].length) { // 상하좌우 없는 칸은 열지 않기
+      // console.log(tableData.length, tableData[0].length);
+      const checkAround = (row, cell) => { // 내 기준으로 주변 칸들을 검사하는 함수
+        if (row < 0 || row >= tableData.length || cell < 0 || cell >= tableData[0].length) { // 상하좌우가 없는 칸은 열지 않기
           return;
         }
-        if ([CODE.OPENED, CODE.FLAG_MINE, CODE.FLAG, CODE.QUESTION_MINE, CODE.QUESTION].includes(tableData[row][cell])) { // 닫힌 칸만 열기
+        if ([CODE.OPENED, CODE.FLAG, CODE.FLAG_MINE, CODE.FLAG, CODE.QUESTION_MINE, CODE.QUESTION].includes(tableData[row][cell])) { // 닫힌 칸만 열기
           return;
         }
         if (checked.includes(row + ',' + cell)) { // 한 번 연 칸은 무시하기
@@ -108,45 +106,45 @@ const reducer = (state, action) => {
         }
         // 주변에 지뢰가 있다면 개수를 카운트        
         let around = [
-          tableData[row][cell - 1], tableData[row][cell + 1],
+          tableData[row][cell - 1], tableData[row][cell + 1], // 주변은 왼쪽 칸, 오른쪽 칸
         ];
         if (tableData[row - 1]) { // 윗줄이 존재하면
-          around = around.concat( // 윗 줄 3칸을 넣어주고
+          around = around.concat([ // 윗 줄 3칸을 포함
             tableData[row - 1][cell - 1],
             tableData[row - 1][cell],
             tableData[row - 1][cell + 1],
-          );
+          ]);
         } 
-        around = around.concat( // 왼쪽 칸, 오른쪽 칸을 넣어줌
-          tableData[row][cell - 1],
-          tableData[row][cell + 1],
-        );
-        if (tableData[action.row + 1]) { // 아랫줄이 존재하면
-          around = around.concat( // 아랫줄 3칸을 넣어줌
+        if (tableData[row + 1]) { // 아랫줄이 존재하면
+          around = around.concat([ // 아랫줄 3칸을 포함
             tableData[row + 1][cell - 1],
             tableData[row + 1][cell],
             tableData[row + 1][cell + 1],
-          );
+          ]);
         }
-        const count = around.filter((v) => [CODE.MINE, CODE.FLAG_MINE, CODE.QUESTION_MINE].includes(v)).length;
-        // 주변 칸 오픈
-        if (count === 0) {
+        const count = around.filter(function(v) { // 지뢰인 칸을 카운트
+          return [CODE.MINE, CODE.FLAG_MINE, CODE.QUESTION_MINE].includes(v);
+        }).length;
+        // console.log(around, count);
+        // tableData[action.row][action.cell] = count;
+
+        if (count === 0) { // 주변에 지뢰가 없으면 주변 칸들을 클릭
           if (row > -1) {
             const near = [];
-            if (row - 1 > -1) {
+            if (row - 1 > -1) { // 맨 윗줄을 클릭했을 때 -> 맨 윗줄보다 윗줄은 없으므로 해당하는 셀들을 제거
               near.push([row - 1, cell - 1]);
               near.push([row - 1, cell]);
               near.push([row - 1, cell + 1]);
             }
             near.push([row, cell - 1]);
             near.push([row, cell + 1]);
-            if (row + 1 > tableData.length) {
+            if (row + 1 < tableData.length) { // 맨 아랫줄을 클릭했을 때 -> 맨 아랫줄보다 아랫줄은 없으므로 해당하는 셀들을 제거
               near.push([row + 1, cell - 1]);
               near.push([row + 1, cell]);
               near.push([row + 1, cell + 1]);
             }
             near.forEach((n) => {
-              if (tableData[n[0]][n[1]] !== CODE.OPENED) {
+              if (tableData[n[0]][n[1]] < CODE.OPENED) {
                 checkAround(n[0], n[1]);
               }
             });
@@ -160,7 +158,7 @@ const reducer = (state, action) => {
       checkAround(action.row, action.cell);
       let halted = false;
       let result = '';
-      console.log(state.data.row * state.data * cell - state.data.mine, state.openedCount, openedCount);
+      // console.log(state.data.row * state.data * cell - state.data.mine, state.openedCount, openedCount);
       if (state.data.row * state.data.cell - state.data.mine === state.openedCount + openedCount) { // 승리
         halted = true;
         result = `${state.timer}초 만에 승리하셨습니다.`;
@@ -168,7 +166,7 @@ const reducer = (state, action) => {
       return {
         ...state,
         tableData,
-        openedCount: state.openedCount + count,
+        openedCount: state.openedCount + openedCount,
         halted,
         result,
       };
@@ -185,7 +183,7 @@ const reducer = (state, action) => {
       };
     };
 
-    case FLAG_CELL: { // 보통 칸에서 깃발 칸으로
+    case FLAG_CELL: {
       const tableData = [...state.tableData];
       tableData[action.row] = [...state.tableData[action.row]];
       if (tableData[action.row][action.cell] = CODE.MINE) {
@@ -199,7 +197,7 @@ const reducer = (state, action) => {
       };
     }
 
-    case QUESTION_CELL: { // 깃발 칸에서 물음표 칸으로
+    case QUESTION_CELL: {
       const tableData = [...state.tableData];
       tableData[action.row] = [...state.tableData[action.row]];
       if (tableData[action.row][action.cell] = CODE.FLAG_MINE) {
@@ -213,7 +211,7 @@ const reducer = (state, action) => {
       };
     }
 
-    case NORMALIZE_CELL: { // 물음표 칸에서 보통 칸으로
+    case NORMALIZE_CELL: {
       const tableData = [...state.tableData];
       tableData[action.row] = [...state.tableData[action.row]];
       if (tableData[action.row][action.cell] = CODE.QUESTION_MINE) {
@@ -226,6 +224,7 @@ const reducer = (state, action) => {
         tableData,
       };
     }
+
     case INCREMENT_TIMER: {
       return {
         ...state,
@@ -241,7 +240,7 @@ const MineSearch = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { tableData, halted, timer, result } = state;
 
-  const value = useMemo(() => ({ tableData, halted, dispatch }, [tableData, halted])); // 캐싱 작업을 통해 contextAPI 사용 시 성능 저하 방지
+  const value = useMemo(() => ({ tableData, halted, dispatch }), [tableData, halted]); // 캐싱 작업을 통해 contextAPI 사용 시 성능 저하 방지
 
   useEffect(() => {
     let timer;

@@ -1,5 +1,5 @@
-import React, { useContext, useCallback, useMemo, memo } from "react";
-import { CODE, CLICK_MINE, FLAG_CELL, NORMALIZE_CELL, OPEN_CELL, QUESTION_CELL, TableContext } from "./MineSearch";
+import React, { useContext, useCallback, memo } from "react";
+import { CODE, OPEN_CELL, CLICK_MINE, FLAG_CELL, QUESTION_CELL, NORMALIZE_CELL, TableContext } from "./MineSearch";
 
 const getTdStyle = (code) => {
   switch (code) {
@@ -45,29 +45,29 @@ const getTdText = (code) => {
     case CODE.QUESTION:
       return '?';
     default:
-      return 'code' || '';
+      return code || '';
   }
 };
 
 const Td = memo(({ rowIndex, cellIndex }) => { // 몇 번째 줄, 몇 번째 칸인지는 부모 props로부터 받음
   const { tableData, dispatch, halted } = useContext(TableContext); // tableData는 useContext로부터 받음
 
+  // 클릭 시
   const onClickTd = useCallback(() => {
     if (halted) {
       return;
     }
-    switch (tableData[rowIndex][cellIndex]) {
-      // 다음 5가지 경우는 클릭이 되지 않도록 설정
+    switch (tableData[rowIndex][cellIndex]) { // 다음 5가지 경우는 클릭이 되지 않도록 설정
       case CODE.OPENED:
       case CODE.FLAG_MINE:
       case CODE.FLAG:
       case CODE.QUESTION_MINE:
       case CODE.QUESTION:
         return ;
-      case CODE.NORMAL: // 보통 칸
+      case CODE.NORMAL: // 보통 칸을 클릭하면 해당 칸을 오픈
         dispatch({ type: OPEN_CELL, row: rowIndex, cell: cellIndex });
         return;
-      case CODE.MINE: // 지뢰 칸
+      case CODE.MINE: // 지뢰 칸을 클릭하면 펑 터짐
         dispatch({ type: CLICK_MINE, row: rowIndex, cell: cellIndex });
         return;
       default:
@@ -99,17 +99,18 @@ const Td = memo(({ rowIndex, cellIndex }) => { // 몇 번째 줄, 몇 번째 칸
     }
   }, [tableData[rowIndex][cellIndex], halted]);
 
-    return <RealTd onClickTd={onClickTd} onRightClickTd={onRightClickTd} data={tableData[rowIndex][cellIndex]} />;
+  return <RealTd onClickTd={onClickTd} onRightClickTd={onRightClickTd} data={tableData[rowIndex][cellIndex]} />;
 });
 
-const RealTd = memo(({ onClickTd, onRightClickTd, data}) => {
+const RealTd = memo(({ onClickTd, onRightClickTd, data }) => {
+
   return (
     <td 
-      style={getTdStyle(tableData[rowIndex][cellIndex])}
+      style={getTdStyle(data)}
       onClick={onClickTd}
       onContextMenu={onRightClickTd}
     >
-      {getTdText(tableData[rowIndex][cellIndex])}
+      {getTdText(data)}
     </td>
   );
 });
