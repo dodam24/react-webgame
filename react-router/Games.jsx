@@ -1,9 +1,6 @@
 import React from 'react';
-import { BrowserRouter, HashRouter, Link, Route } from 'react-router-dom';
-import NumberBaseball from '../3. 숫자야구/NumberBaseballClass';
-import RSP from '../5. 가위바위보/RSPClass';
-import Lotto from '../6. 로또/LottoClass';
-import GameMatcher from './GameMatcherClass';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import GameMatcher from './GameMatcher';
 
 
 const Games = () => {
@@ -19,7 +16,10 @@ const Games = () => {
           <Link to="/game/index">게임매쳐</Link>
         </div>
         <div>
-          <Route path="/game/:name" component={GameMatcher} />
+          <Routes>
+            <Route path="/" element={<GameMatcher />} />
+            <Route path="/game/*" element={<GameMatcher />} />
+          </Routes>
         </div>
       </BrowserRouter>
   );
